@@ -2,10 +2,16 @@ import SwiftUI
 import AVKit
 import UIKit
 
+private final class PipelineBox {
+    var pipeline = LayerEffectPipeline()
+}
+
 struct MediaPreviewView: View {
     let layer: EditorLayer?
     let transform: LayerTransform
+    var effects: [EffectInstance] = []
     @State private var player: AVPlayer?
+    @State private var box = PipelineBox()
 
     var body: some View {
         ZStack {
@@ -15,9 +21,13 @@ struct MediaPreviewView: View {
                 switch layer.type {
                 case .image:
                     if let image = UIImage(contentsOfFile: path) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
+                        Image(uiImage: box.pipeline.render(
+                            image: image,
+                            layerID: layer.id,
+                            effects: effects
+                        ))
+                        .resizable()
+                        .scaledToFit()
                     } else {
                         placeholder("Imagem indisponível")
                     }

@@ -6,6 +6,8 @@ struct EditorWorkspaceView: View {
     private var currentTime: Double { playback.currentTime }
     @State private var selectedLayer: UUID?
     @State private var status = "Projeto pronto"
+    @State private var showingEffects = false
+    @State private var effectsRevision = 0
 
     private var selectedLayerBinding: Binding<EditorLayer>? {
         guard let id = selectedLayer,
@@ -34,6 +36,12 @@ struct EditorWorkspaceView: View {
         return result
     }
 
+    private var previewEffects: [EffectInstance] {
+        _ = effectsRevision
+        guard let id = selectedLayer else { return [] }
+        return EffectStackStore.shared.effects(for: id)
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             HStack {
@@ -43,7 +51,7 @@ struct EditorWorkspaceView: View {
             }
             .padding(.horizontal)
 
-            MediaPreviewView(layer: project.layers.first { $0.id == selectedLayer }, transform: previewTransform)
+            MediaPreviewView(layer: project.layers.first { $0.id == selectedLayer }, transform: previewTransform, effects: previewEffects)
             .aspectRatio(9 / 16, contentMode: .fit)
             .padding(.horizontal, 65)
 
@@ -81,6 +89,7 @@ struct EditorWorkspaceView: View {
                 Button("＋ Texto") { addLayer(.text, "Texto") }
                 Button("＋ Forma") { addLayer(.shape, "Forma") }
                 Button("＋ Áudio") { addLayer(.audio, "Áudio") }
+                Button("Efeitos") { showingEffects = true }
             }
             .buttonStyle(.bordered)
             .font(.caption)
@@ -110,6 +119,12 @@ struct EditorWorkspaceView: View {
             Text(status).font(.caption2)
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingEffects, onDismiss: { effectsRevision += 1 }) {
+            if let id = selectedLayer {
+                EffectStackView(layerID: id)
+                    .presentationDetents([.medium, .large])
+            }
+        }
         .background(Color.black)
     }
 
