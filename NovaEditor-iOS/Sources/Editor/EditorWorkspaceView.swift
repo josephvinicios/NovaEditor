@@ -79,7 +79,7 @@ struct EditorWorkspaceView: View {
 
             HStack {
                 PlaybackControls(playback: playback)
-                MediaImportButton { layers in
+                MediaImportButton(onMessage: { status = $0 }) { layers in
                     for layer in layers {
                         project.addLayer(layer)
                         selectedLayer = layer.id
