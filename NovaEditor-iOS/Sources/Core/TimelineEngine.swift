@@ -31,7 +31,7 @@ struct TimelineEngine {
         project.layers.filter {
             $0.enabled &&
             currentTime >= $0.startTime &&
-            currentTime <= $0.startTime + $0.duration
+            currentTime < $0.startTime + $0.duration
         }
     }
 
@@ -59,15 +59,49 @@ struct TimelineEngine {
             let a = sorted[index]
             let b = sorted[index + 1]
 
-            if currentTime >= a.time && currentTime <= b.time {
-                let range = b.time - a.time
-                guard range > 0 else { return b.value }
-
-                let progress = (currentTime - a.time) / range
-                return a.value + (b.value - a.value) * progress
+            guard currentTime >= a.time,
+                  currentTime <= b.time else {
+                continue
             }
+
+            let duration = b.time - a.time
+            guard duration > 0 else { return b.value }
+
+            let raw = (currentTime - a.time) / duration
+            let progress = interpolate(raw, using: a.interpolation)
+
+            return a.value + (b.value - a.value) * progress
         }
 
         return defaultValue
+    }
+
+    private func interpolate(
+        _ progress: Double,
+        using mode: String
+    ) -> Double {
+        let t = min(max(progress, 0), 1)
+
+        switch mode.lowercased() {
+        case "step", "hold":
+            return 0
+
+        case "easein", "ease-in":
+            return t * t
+
+        case "easeout", "ease-out":
+            return 1 - pow(1 - t, 2)
+
+        case "easeinout", "ease-in-out":
+            return t < 0.5
+                ? 2 * t * t
+                : 1 - pow(-2 * t + 2, 2) / 2
+
+        case "smooth":
+            return t * t * (3 - 2 * t)
+
+        default:
+            return t
+        }
     }
 }

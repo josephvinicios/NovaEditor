@@ -2,7 +2,8 @@ import SwiftUI
 
 struct EditorWorkspaceView: View {
     @State private var project = EditorProject(name: "Meu Projeto")
-    @State private var currentTime = 0.0
+    @StateObject private var playback = TimelinePlayback()
+    private var currentTime: Double { playback.currentTime }
     @State private var selectedLayer: UUID?
     @State private var status = "Projeto pronto"
 
@@ -22,7 +23,7 @@ struct EditorWorkspaceView: View {
             $0.id == selectedLayer
         }) else { return LayerTransform() }
 
-        let engine = TimelineEngine(currentTime: currentTime)
+        let engine = TimelineEngine(currentTime: playback.currentTime)
         var result = layer.transform
         result.x = engine.value(for: "x", in: layer, default: result.x)
         result.y = engine.value(for: "y", in: layer, default: result.y)
@@ -64,10 +65,12 @@ struct EditorWorkspaceView: View {
             }
             .padding(.horizontal, 25)
 
-            Slider(value: $currentTime, in: 0...project.duration)
+                TimelineRulerView(duration: project.duration, currentTime: playback.currentTime)
+            Slider(value: $playback.currentTime, in: 0...project.duration)
                 .padding(.horizontal)
 
             HStack {
+                PlaybackControls(playback: playback)
                 MediaImportButton { layers in
                     for layer in layers {
                         project.addLayer(layer)
