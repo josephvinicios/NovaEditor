@@ -6,6 +6,33 @@ struct EditorWorkspaceView: View {
     @State private var selectedLayer: UUID?
     @State private var status = "Projeto pronto"
 
+    private var selectedLayerBinding: Binding<EditorLayer>? {
+        guard let id = selectedLayer,
+              let index = project.layers.firstIndex(where: { $0.id == id })
+        else { return nil }
+
+        return Binding(
+            get: { project.layers[index] },
+            set: { project.layers[index] = $0 }
+        )
+    }
+
+    private var previewTransform: LayerTransform {
+        guard let layer = project.layers.first(where: {
+            $0.id == selectedLayer
+        }) else { return LayerTransform() }
+
+        let engine = TimelineEngine(currentTime: currentTime)
+        var result = layer.transform
+        result.x = engine.value(for: "x", in: layer, default: result.x)
+        result.y = engine.value(for: "y", in: layer, default: result.y)
+        result.scaleX = engine.value(for: "scaleX", in: layer, default: result.scaleX)
+        result.scaleY = engine.value(for: "scaleY", in: layer, default: result.scaleY)
+        result.rotation = engine.value(for: "rotation", in: layer, default: result.rotation)
+        result.opacity = engine.value(for: "opacity", in: layer, default: result.opacity)
+        return result
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             HStack {
@@ -15,17 +42,7 @@ struct EditorWorkspaceView: View {
             }
             .padding(.horizontal)
 
-            ZStack {
-                Color.black
-                VStack {
-                    Text("NOVA")
-                        .font(.system(size: 42, weight: .black))
-                    Text("PRÉ-VISUALIZAÇÃO")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                }
-            }
-            .foregroundColor(.white)
+            MediaPreviewView(layer: project.layers.first { $0.id == selectedLayer }, transform: previewTransform)
             .aspectRatio(9 / 16, contentMode: .fit)
             .padding(.horizontal, 65)
 
@@ -51,6 +68,13 @@ struct EditorWorkspaceView: View {
                 .padding(.horizontal)
 
             HStack {
+                MediaImportButton { layers in
+                    for layer in layers {
+                        project.addLayer(layer)
+                        selectedLayer = layer.id
+                    }
+                    status = layers.isEmpty ? "Nenhuma mídia importada" : "Mídia importada"
+                }
                 Button("＋ Texto") { addLayer(.text, "Texto") }
                 Button("＋ Forma") { addLayer(.shape, "Forma") }
                 Button("＋ Áudio") { addLayer(.audio, "Áudio") }
@@ -72,6 +96,13 @@ struct EditorWorkspaceView: View {
                 }
             }
             .listStyle(.plain)
+
+            if let binding = selectedLayerBinding {
+                LayerPropertiesPanel(
+                    layer: binding,
+                    currentTime: currentTime
+                )
+            }
 
             Text(status).font(.caption2)
         }
