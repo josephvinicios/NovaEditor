@@ -4,7 +4,7 @@ import SwiftUI
 struct NovaEditorApp: App {
     var body: some Scene {
         WindowGroup {
-            EditorView()
+            EditorWorkspaceView()
         }
     }
 }
