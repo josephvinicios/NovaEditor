@@ -58,7 +58,7 @@ struct EditorWorkspaceView: View {
                     .monospacedDigit()
                 Spacer()
                 Button {
-                    currentTime = min(project.duration, currentTime + 1.0 / 30.0)
+                    playback.currentTime = min(project.duration, currentTime + 1.0 / 30.0)
                 } label: {
                     Image(systemName: "forward.end.fill")
                 }
