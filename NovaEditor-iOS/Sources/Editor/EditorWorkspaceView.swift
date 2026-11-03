@@ -49,7 +49,7 @@ struct EditorWorkspaceView: View {
 
             HStack {
                 Button {
-                    currentTime = max(0, currentTime - 1.0 / 30.0)
+                    playback.currentTime = max(0, currentTime - 1.0 / 30.0)
                 } label: {
                     Image(systemName: "backward.end.fill")
                 }

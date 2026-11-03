@@ -13,9 +13,6 @@ final class TimelinePlayback: ObservableObject {
         timer?.cancel()
     }
 
-    deinit {
-        timer?.cancel()
-    }
 
     func play() {
         guard !isPlaying else { return }
