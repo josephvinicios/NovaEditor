@@ -23,7 +23,7 @@ jobs:
 
       - name: Build app
         run: |
-          xcodebuild -project NovaEditor.xcodeproj \
+          xcodebuild -project NovaEditor-iOS/NovaEditor.xcodeproj \
             -scheme NovaEditor \
             -configuration Release \
             -sdk iphoneos \
