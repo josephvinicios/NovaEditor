@@ -9,6 +9,9 @@ targets:
     platform: iOS
     sources:
       - Sources
+      - path: Resources/effects
+        type: folder
+        buildPhase: resources
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.novaeditor.app

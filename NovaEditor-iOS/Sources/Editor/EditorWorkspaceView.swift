@@ -7,6 +7,7 @@ struct EditorWorkspaceView: View {
     @State private var selectedLayer: UUID?
     @State private var status = "Projeto pronto"
     @State private var showingEffects = false
+    @State private var showingCatalog = false
     @State private var effectsRevision = 0
 
     private var selectedLayerBinding: Binding<EditorLayer>? {
@@ -90,6 +91,7 @@ struct EditorWorkspaceView: View {
                 Button("＋ Forma") { addLayer(.shape, "Forma") }
                 Button("＋ Áudio") { addLayer(.audio, "Áudio") }
                 Button("Efeitos") { showingEffects = true }
+                Button("Catálogo") { showingCatalog = true }
             }
             .buttonStyle(.bordered)
             .font(.caption)
@@ -119,6 +121,7 @@ struct EditorWorkspaceView: View {
             Text(status).font(.caption2)
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingCatalog) { AMEffectCatalogTestView() }
         .sheet(isPresented: $showingEffects, onDismiss: { effectsRevision += 1 }) {
             if let id = selectedLayer {
                 EffectStackView(layerID: id)
