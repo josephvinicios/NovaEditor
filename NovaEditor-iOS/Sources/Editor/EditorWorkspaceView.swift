@@ -7,6 +7,7 @@ struct EditorWorkspaceView: View {
     @State private var selectedLayer: UUID?
     @State private var status = "Projeto pronto"
     @State private var showingEffects = false
+    @State private var lut: CubeLUT?
     @State private var showingCatalog = false
     @State private var effectsRevision = 0
 
@@ -52,7 +53,7 @@ struct EditorWorkspaceView: View {
             }
             .padding(.horizontal)
 
-            MediaPreviewView(layer: project.layers.first { $0.id == selectedLayer }, transform: previewTransform, effects: previewEffects)
+            MediaPreviewView(layer: project.layers.first { $0.id == selectedLayer }, transform: previewTransform, effects: previewEffects, lut: lut)
             .aspectRatio(9 / 16, contentMode: .fit)
             .padding(.horizontal, 65)
 
@@ -91,6 +92,7 @@ struct EditorWorkspaceView: View {
                 Button("＋ Forma") { addLayer(.shape, "Forma") }
                 Button("＋ Áudio") { addLayer(.audio, "Áudio") }
                 Button("Efeitos") { showingEffects = true }
+                LUTImportButton(onMessage: { status = $0 }) { lut = $0 }
                 Button("Catálogo") { showingCatalog = true }
             }
             .buttonStyle(.bordered)
